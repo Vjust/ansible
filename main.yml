@@ -1,0 +1,28 @@
+# Execute as "ansible-playbook -i hosts local main.yml --ask-sudo-pass
+--- 
+- hosts: local
+  tasks:
+  - name: Pull changes on the dev server
+    command: git status
+    args:
+      chdir: "{{ app_dir }}"
+      #/home/vjust/tmp/ans1/corroborator_dev0
+    tags:
+       - git        
+  - name: Copy settings
+    sudo: no
+    command: cp "{{ old_app_dir }}/corroborator/settings.py" "{{ app_dir }}"
+    #command: cp /home/vjust/code4/corroborator_dev0/corroborator/settings.py /home/vjust/tmp/ans1/
+  - name: Restart application server
+    sudo: yes
+    command: service nginx restart
+  - name: Create a log directory (if does not exist)
+    file: path="{{ app_dir }}/log" state=directory mode=0755
+  - name: Create log file if does not exist
+    file: path="{{ app_dir }}/log/corroborator.log"  state=touch mode=0755    
+    
+- hosts: mysql
+  tasks:
+  - name: Restart Solr
+    sudo: yes
+    command: service mysql restart
