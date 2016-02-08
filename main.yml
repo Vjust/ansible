@@ -23,6 +23,6 @@
     
 - hosts: mysql
   tasks:
-  - name: Restart Solr
+  - name: Restart mysql
     sudo: yes
     command: service mysql restart
